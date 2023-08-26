@@ -41,6 +41,11 @@ dependencies:
   image_picker: ^1.0.1
   permission_handler: ^10.4.3
   encrypt: ^5.0.1
+  firebase_storage: ^11.2.5
+  google_sign_in: ^6.1.4
+  the_apple_sign_in: ^1.1.1
+  url_launcher: ^6.1.12
+  path_provider: ^2.1.0
  
 dev_dependencies:
   flutter_test:
@@ -53,8 +58,10 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
   velocity_x: ^4.1.0
-  file_picker: ^5.3.2
+  file_picker: ^5.3.3
   cloud_firestore: ^4.8.3
+  image: ^4.0.17
+  provider: ^6.0.5
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
