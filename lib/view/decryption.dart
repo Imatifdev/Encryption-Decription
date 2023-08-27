@@ -1,104 +1,324 @@
-import 'dart:convert';
-import 'dart:typed_data';
-import 'package:encrypt/encrypt.dart';
 import 'package:flutter/material.dart';
-import 'package:encrypt/encrypt.dart' as encrypt_package;
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'dart:io';
+import 'package:encrypt/encrypt.dart';
+import 'package:encrypt/encrypt.dart' as encrypt;
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-void main() {
-  runApp(ImageCryptoApp());
-}
+class DecryptionPage extends StatefulWidget {
+  final TextEditingController encryptedkey;
+  final String encryptiontext;
 
-class ImageCryptoApp extends StatefulWidget {
+  const DecryptionPage(
+      {super.key, required this.encryptedkey, required this.encryptiontext});
+
   @override
-  _ImageCryptoAppState createState() => _ImageCryptoAppState();
+  State<DecryptionPage> createState() => _DecryptionPageState();
 }
 
-class _ImageCryptoAppState extends State<ImageCryptoApp> {
-  final picker = ImagePicker();
-  final encrypt_package.Key _key = encrypt_package.Key.fromLength(32);
+class _DecryptionPageState extends State<DecryptionPage> {
+  final _formKey = GlobalKey<FormState>();
+  TextEditingController _inputTextController =
+      TextEditingController(); // Controller for input text
+  TextEditingController _encryptionKeyController =
+      TextEditingController(); // Controller for encrypted key
+  TextEditingController _encryptedTextController =
+      TextEditingController(); // Controller for encrypted text
+  TextEditingController _decryptedTextController =
+      TextEditingController(); // Controller for decrypted text
+  late String _encryptionKey;
+  late String _encryptedText;
+  late String _decryptedText;
+  @override
+  void initState() {
+    super.initState();
+    _encryptionKey = generateRandomKey();
+    _encryptionKeyController.text = _encryptionKey;
+  }
 
-  XFile? _pickedImage;
-  Uint8List? _originalImageData;
-  Uint8List? _encryptedImageData;
-  Uint8List? _decryptedImageData;
+  @override
+  void dispose() {
+    _inputTextController.dispose();
+    _encryptionKeyController.dispose();
+    _encryptedTextController.dispose();
+    _decryptedTextController.dispose();
+    super.dispose();
+  }
 
-  Future<void> pickImageFromGallery() async {
-    _pickedImage = await picker.pickImage(source: ImageSource.gallery);
-    if (_pickedImage != null) {
+  String generateRandomKey() {
+    final key = encrypt.Key.fromLength(32);
+    return key.base64;
+  }
+
+  String generateRandomIV() {
+    final iv = IV.fromLength(16);
+    return iv.base64;
+  }
+
+  String encryptText(String text) {
+    final key = encrypt.Key.fromBase64(_encryptionKey);
+    final iv = IV.fromBase64(generateRandomIV());
+    final encrypter = Encrypter(AES(key));
+    final encrypted = encrypter.encrypt(text, iv: iv);
+    return encrypted.base64;
+  }
+
+  String decryptText(String encryptedText, String keyBase64, String ivBase64) {
+    final key = encrypt.Key.fromBase64(keyBase64);
+    final iv = IV.fromBase64(ivBase64);
+    final encrypter = Encrypter(AES(key));
+    final encrypted = Encrypted.fromBase64(encryptedText);
+    final decrypted = encrypter.decrypt(encrypted, iv: iv);
+    return decrypted;
+  }
+
+  void _encryptText() {
+    if (_formKey.currentState!.validate()) {
+      final inputText = _inputTextController.text;
+      final iv = generateRandomIV();
       setState(() {
-        _originalImageData = null;
-        _encryptedImageData = null;
-        _decryptedImageData = null;
+        _encryptionKey = _encryptionKeyController.text;
+        _encryptedText = encryptText(inputText);
+        _encryptedTextController.text =
+            _encryptedText; // Display encrypted text in the field
+        _decryptedTextController.text = ''; // Clear the decrypted text field
       });
+
+      _saveToFirestore(_encryptedText);
     }
   }
 
-  Future<void> _encryptImage(Uint8List data) async {
-    final iv = IV.fromLength(16);
-
-    final encrypter = Encrypter(AES(_key, mode: AESMode.cbc));
-    final encrypted = encrypter.encryptBytes(data, iv: iv);
-
+  void _decryptText() {
+    final encryptedText = widget.encryptedkey.text;
+    final iv = generateRandomIV();
+    final decryptedText = decryptText(encryptedText, _encryptionKey, iv);
     setState(() {
-      _encryptedImageData = encrypted.bytes;
+      _decryptedText = decryptedText;
+      _decryptedTextController.text =
+          _decryptedText; // Display decrypted text in the field
     });
+
+    _saveToFirestore(_decryptedText);
   }
 
-  Future<void> _decryptImage(Uint8List encryptedData) async {
-    final iv = IV.fromLength(16);
+  XFile? pickImage;
+  num snabWalletBalance = 0;
+  int check = 0;
+  final picker = ImagePicker();
 
-    final encrypter = Encrypter(AES(_key, mode: AESMode.cbc));
-    final decrypted = encrypter.decrypt(Encrypted(encryptedData), iv: iv);
+  Future<void> _pickImageFromGallery() async {
+    final picker = ImagePicker();
+    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
 
-    setState(() {
-      _decryptedImageData = decrypted as Uint8List?;
-    });
+    if (pickedImage != null) {
+      // Handle the selected image
+      File selectedImage = File(pickedImage.path);
+      // You can now use the selectedImage file for further operations
+    }
+  }
+
+  void _saveToFirestore(String data) async {
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final User? user = auth.currentUser;
+
+    if (user != null) {
+      final collectionReference =
+          FirebaseFirestore.instance.collection('secrets');
+
+      // Create a new document with a unique ID (Firestore will generate it)
+      await collectionReference.add({
+        'userId': user.uid,
+        'data': data,
+        'timestamp': FieldValue
+            .serverTimestamp(), // Optional: to store the time of saving
+      });
+
+      // Show a snackbar or toast to inform the user that the data is saved.
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Data saved to Firestore!')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('Image Encryption & Decryption'),
-        ),
-        body: Center(
+    final size = MediaQuery.of(context).size;
+    final height = size.height;
+    final width = size.width;
+    return Scaffold(
+      backgroundColor: Color(0xff011826), // Customize the background color
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: SingleChildScrollView(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ElevatedButton(
-                onPressed: pickImageFromGallery,
-                child: Text('Pick Image from Gallery'),
+              SizedBox(
+                height: 20,
               ),
-              SizedBox(height: 20),
-              if (_pickedImage != null)
-                ElevatedButton(
-                  onPressed: () async {
-                    final imageData = await _pickedImage!.readAsBytes();
-                    setState(() {
-                      _originalImageData = imageData;
-                    });
-                    await _encryptImage(imageData);
-                  },
-                  child: Text('Encrypt Image'),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Image(
+                    height: height / 10,
+                    width: width / 4,
+                    image: AssetImage(
+                      'assets/images/logo.png',
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: Icon(
+                      Icons.arrow_back_ios_outlined,
+                      color: Colors.white,
+                      size: 30,
+                    ),
+                  )
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Text("Decrypt your secrets. John use Dig Deep",
+                    style: TextStyle(color: Colors.white)),
+              ),
+              Image(
+                height: height / 5,
+                width: width / 1,
+                fit: BoxFit.contain,
+                image: AssetImage('assets/images/encr.jpeg'),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: Color(0xff011826), // Customize the background color
+                  image: DecorationImage(
+                    colorFilter: new ColorFilter.mode(
+                        Colors.black.withOpacity(0.2), BlendMode.dstATop),
+                    image: AssetImage('assets/images/logo.png'),
+                  ),
                 ),
-              SizedBox(height: 20),
-              if (_encryptedImageData != null)
-                Column(
-                  children: [
-                    Text('Encrypted Image Preview:'),
-                    Image.memory(Uint8List.fromList(_encryptedImageData!)),
-                  ],
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: TextFormField(
+                            style: TextStyle(color: Colors.white),
+                            maxLines: 5,
+                            controller: _decryptedTextController,
+                            decoration: InputDecoration(
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 10,
+                              ),
+                              filled: true,
+                              hintStyle: TextStyle(color: Colors.white),
+                              fillColor: Colors.white.withOpacity(0.2),
+                              hintText: widget.encryptiontext,
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter some text';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Row(
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "CRC 16",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  Text(
+                                    "CRC 16",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  Text(
+                                    "CRC 32",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  Text(
+                                    "MD 2",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  Text(
+                                    "MD 4",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  Text(
+                                    "SHA 128",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  Text(
+                                    "SHA 256",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  Text(
+                                    "SHA 512",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  Text(
+                                    "SHAKE 128",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  Text(
+                                    "SHAKE 256",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                width: 30,
+                              ),
+                              InkWell(
+                                onTap: _decryptText,
+                                child: Card(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  elevation: 10,
+                                  child: Container(
+                                    height: 50,
+                                    width: 150,
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        colors: [
+                                          Color(0xfffda93e),
+                                          Color(0xfff75230)
+                                        ],
+                                      ),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Center(
+                                      child: const Text(
+                                        'Decrypt',
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 18),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      ]),
                 ),
-              SizedBox(height: 20),
-              if (_decryptedImageData != null)
-                Column(
-                  children: [
-                    Text('Decrypted Image Preview:'),
-                    Image.memory(Uint8List.fromList(_decryptedImageData!)),
-                  ],
-                ),
+              ),
             ],
           ),
         ),

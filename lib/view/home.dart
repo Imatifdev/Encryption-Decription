@@ -1,3 +1,4 @@
+import 'package:ecndec/view/decryption.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -338,7 +339,16 @@ class _HomeState extends State<Home> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: InkWell(
-                          onTap: _decryptText,
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (ctx) => DecryptionPage(
+                                          encryptedkey:
+                                              _encryptedTextController,
+                                          encryptiontext: _encryptedText,
+                                        )));
+                          },
                           child: Card(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15),

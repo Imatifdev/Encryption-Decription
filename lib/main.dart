@@ -1,4 +1,5 @@
 import 'package:ecndec/view/decryption.dart';
+import 'package:ecndec/view/profile.dart';
 import 'package:ecndec/view/textdecryption.dart';
 import 'package:ecndec/view/textencryption.dart';
 import 'package:ecndec/view/home.dart';
@@ -36,8 +37,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(),
-      home: HomePage1(),
+      theme: ThemeData(
+        textTheme: TextTheme(),
+      ),
+      home: Home(),
     );
   }
 }
