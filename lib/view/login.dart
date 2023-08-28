@@ -6,6 +6,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../model/loginmodel.dart';
+import 'bottombar.dart';
 import 'forgot.dart';
 import 'home.dart';
 import 'package:velocity_x/velocity_x.dart';
@@ -59,7 +60,8 @@ class _LoginScreenState extends State<LoginScreen> {
         // Process the login credentials
         print('Email: $email');
         print('Password: $password');
-        Navigator.push(context, MaterialPageRoute(builder: (ctx) => Home()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (ctx) => MyBottomNavigationBar()));
       }
     }
 
@@ -244,7 +246,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             } else {
                               Navigator.pushAndRemoveUntil(
                                   context,
-                                  MaterialPageRoute(builder: (ctx) => Home()),
+                                  MaterialPageRoute(
+                                      builder: (ctx) =>
+                                          MyBottomNavigationBar()),
                                   (Route<dynamic> route) => false);
                             }
                           }

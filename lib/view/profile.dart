@@ -27,9 +27,7 @@ class ProfileView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Profile'),
-      ),
+      backgroundColor: Color(0xff011826), // Customize the background color
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
             .collection('UsersData')
@@ -61,27 +59,42 @@ class ProfileView extends StatelessWidget {
                   radius: 50,
                   child: Icon(
                     Icons.person,
+                    color: Colors.white,
                     size: 60,
                   ),
                 ),
                 SizedBox(height: 16.0),
                 Text(
                   name,
-                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.w400),
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.white,
+                  ),
                 ),
                 SizedBox(height: 30.0),
                 ListTile(
-                  leading: Icon(Icons.person),
+                  leading: Icon(
+                    Icons.email,
+                    color: Colors.white,
+                  ),
                   title: Text(
                     'Change Email',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                   subtitle: Text(
                     email,
                     style: TextStyle(fontSize: 14),
                   ),
                   trailing: IconButton(
-                    icon: Icon(Icons.edit),
+                    icon: Icon(
+                      Icons.edit,
+                      color: Colors.white,
+                    ),
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -92,17 +105,27 @@ class ProfileView extends StatelessWidget {
                 ),
                 SizedBox(height: 16.0),
                 ListTile(
-                  leading: Icon(Icons.person),
+                  leading: Icon(
+                    Icons.person,
+                    color: Colors.white,
+                  ),
                   title: Text(
                     'Change Name',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                   subtitle: Text(
                     name,
                     style: TextStyle(fontSize: 14),
                   ),
                   trailing: IconButton(
-                    icon: Icon(Icons.edit),
+                    icon: Icon(
+                      Icons.edit,
+                      color: Colors.white,
+                    ),
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -113,17 +136,30 @@ class ProfileView extends StatelessWidget {
                 ),
                 SizedBox(height: 16.0),
                 ListTile(
-                  leading: Icon(Icons.person),
+                  leading: Icon(
+                    Icons.lock,
+                    color: Colors.white,
+                  ),
                   title: Text(
                     'Change Password',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                   subtitle: Text(
                     '********',
-                    style: TextStyle(fontSize: 14),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.white,
+                    ),
                   ),
                   trailing: IconButton(
-                    icon: Icon(Icons.edit),
+                    icon: Icon(
+                      Icons.edit,
+                      color: Colors.white,
+                    ),
                     onPressed: () {
                       Navigator.push(
                         context,

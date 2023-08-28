@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
+import 'bottombar.dart';
 import 'home.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
@@ -41,7 +42,8 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
           .showSnackBar(SnackBar(content: Text("Email Successfully Verified")));
 
       timer?.cancel();
-      Navigator.push(context, MaterialPageRoute(builder: (ctx) => Home()));
+      Navigator.push(context,
+          MaterialPageRoute(builder: (ctx) => MyBottomNavigationBar()));
     }
   }
 

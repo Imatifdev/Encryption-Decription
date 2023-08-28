@@ -90,7 +90,11 @@ class _ImagePickerScreenState extends State<ImagePickerScreen> {
                     height: 200,
                   ),
                 if (_image != null && _blurredImage == null)
-                  if (_isBlurring) CircularProgressIndicator(),
+                  Image.file(
+                    _image!,
+                    height: 200,
+                  ),
+                if (_isBlurring) CircularProgressIndicator(),
               ],
             ),
             SizedBox(height: 20),
@@ -241,6 +245,70 @@ class _EncryptionDecryptionImagePageState
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        // if (_image == null)
+                        //   Padding(
+                        //     padding: const EdgeInsets.symmetric(horizontal: 20),
+                        //     child: Container(
+                        //       decoration: BoxDecoration(
+                        //           color: Colors.white.withOpacity(0.3),
+                        //           borderRadius: BorderRadius.circular(20)),
+                        //       height: 200,
+                        //       width: 200,
+                        //       child: _image == null
+                        //           ? Center(
+                        //               child: Column(
+                        //                 mainAxisAlignment:
+                        //                     MainAxisAlignment.center,
+                        //                 children: [
+                        //                   IconButton(
+                        //                       onPressed: _pickImage,
+                        //                       icon: Icon(
+                        //                         Icons.cloud_upload_rounded,
+                        //                         color: Colors.white,
+                        //                         size: 30,
+                        //                       )),
+                        //                   Text(
+                        //                     "Upload File ",
+                        //                     style: TextStyle(
+                        //                         color: Colors.white,
+                        //                         fontSize: 20),
+                        //                   )
+                        //                 ],
+                        //               ),
+                        //             )
+                        //           : Stack(
+                        //               alignment: Alignment.center,
+                        //               children: [
+                        //                 if (_blurredImage != null)
+                        //                   Image.file(
+                        //                     _blurredImage!,
+                        //                     height: 200,
+                        //                   ),
+                        //                 if (_image != null &&
+                        //                     _blurredImage == null)
+                        //                   if (_isBlurring)
+                        //                     CircularProgressIndicator(),
+                        //               ],
+                        //             ),
+                        //     ),
+                        //   ),
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            if (_blurredImage != null)
+                              Image.file(
+                                _blurredImage!,
+                                height: 200,
+                              ),
+                            if (_image != null && _blurredImage == null)
+                              Image.file(
+                                _image!,
+                                height: 200,
+                              ),
+                            if (_isBlurring) CircularProgressIndicator(),
+                          ],
+                        ),
+                        SizedBox(height: 20),
                         if (_image == null)
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -250,44 +318,107 @@ class _EncryptionDecryptionImagePageState
                                   borderRadius: BorderRadius.circular(20)),
                               height: 200,
                               width: 200,
-                              child: _image == null
-                                  ? Center(
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          IconButton(
-                                              onPressed: _pickImage,
-                                              icon: Icon(
-                                                Icons.cloud_upload_rounded,
-                                                color: Colors.white,
-                                                size: 30,
-                                              )),
-                                          Text(
-                                            "Upload File ",
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 20),
-                                          )
-                                        ],
-                                      ),
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    IconButton(
+                                        onPressed: _pickImage,
+                                        icon: Icon(
+                                          Icons.cloud_upload_rounded,
+                                          color: Colors.white,
+                                          size: 30,
+                                        )),
+                                    Text(
+                                      "Upload File ",
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 20),
                                     )
-                                  : Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        if (_blurredImage != null)
-                                          Image.file(
-                                            _blurredImage!,
-                                            height: 200,
-                                          ),
-                                        if (_image != null &&
-                                            _blurredImage == null)
-                                          if (_isBlurring)
-                                            CircularProgressIndicator(),
-                                      ],
-                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
+                        SizedBox(height: 50),
+                        _image != null
+                            ? Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  InkWell(
+                                    onTap: () {
+                                      _applyBlur();
+                                    },
+                                    child: Card(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(15),
+                                      ),
+                                      elevation: 10,
+                                      child: Container(
+                                        height: 50,
+                                        width: 150,
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            begin: Alignment.topCenter,
+                                            end: Alignment.bottomCenter,
+                                            colors: [
+                                              Color(0xfffda93e),
+                                              Color(0xfff75230)
+                                            ],
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Center(
+                                          child: const Text(
+                                            'Encrypt',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 18),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+                                      _clearImage();
+                                    },
+                                    child: Card(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(15),
+                                      ),
+                                      elevation: 10,
+                                      child: Container(
+                                        height: 50,
+                                        width: 150,
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            begin: Alignment.topCenter,
+                                            end: Alignment.bottomCenter,
+                                            colors: [
+                                              Color(0xfffda93e),
+                                              Color(0xfff75230)
+                                            ],
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Center(
+                                          child: const Text(
+                                            'Decrypt',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 18),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              )
+                            : Container(),
+
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: Row(
@@ -340,37 +471,37 @@ class _EncryptionDecryptionImagePageState
                               SizedBox(
                                 width: 30,
                               ),
-                              InkWell(
-                                onTap: () {},
-                                child: Card(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  elevation: 10,
-                                  child: Container(
-                                    height: 50,
-                                    width: 150,
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                        colors: [
-                                          Color(0xfffda93e),
-                                          Color(0xfff75230)
-                                        ],
-                                      ),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Center(
-                                      child: const Text(
-                                        'Decrypt',
-                                        style: TextStyle(
-                                            color: Colors.white, fontSize: 18),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
+                              // InkWell(
+                              //   onTap: () {},
+                              //   child: Card(
+                              //     shape: RoundedRectangleBorder(
+                              //       borderRadius: BorderRadius.circular(15),
+                              //     ),
+                              //     elevation: 10,
+                              //     child: Container(
+                              //       height: 50,
+                              //       width: 150,
+                              //       decoration: BoxDecoration(
+                              //         gradient: LinearGradient(
+                              //           begin: Alignment.topCenter,
+                              //           end: Alignment.bottomCenter,
+                              //           colors: [
+                              //             Color(0xfffda93e),
+                              //             Color(0xfff75230)
+                              //           ],
+                              //         ),
+                              //         borderRadius: BorderRadius.circular(10),
+                              //       ),
+                              //       child: Center(
+                              //         child: const Text(
+                              //           'Decrypt',
+                              //           style: TextStyle(
+                              //               color: Colors.white, fontSize: 18),
+                              //         ),
+                              //       ),
+                              //     ),
+                              //   ),
+                              // ),
                             ],
                           ),
                         )
