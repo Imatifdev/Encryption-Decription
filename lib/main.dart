@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         textTheme: TextTheme(),
       ),
-      home: ProfileView(),
+      home: SplashScreen(),
     );
   }
 }

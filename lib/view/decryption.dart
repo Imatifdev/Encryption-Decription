@@ -7,6 +7,7 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:share_plus/share_plus.dart';
 
 class DecryptionPage extends StatefulWidget {
   final TextEditingController encryptedkey;
@@ -315,6 +316,14 @@ class _DecryptionPageState extends State<DecryptionPage> {
                               ),
                             ],
                           ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            if (_encryptedText.isNotEmpty) {
+                              Share.share(_decryptedText);
+                            }
+                          },
+                          child: Text('Share Encrypted Text'),
                         )
                       ]),
                 ),

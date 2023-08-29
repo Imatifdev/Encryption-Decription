@@ -14,6 +14,7 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ImagePickerScreen extends StatefulWidget {
   const ImagePickerScreen({super.key});
@@ -471,6 +472,15 @@ class _EncryptionDecryptionImagePageState
                               SizedBox(
                                 width: 30,
                               ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  if (_image != null) {
+                                    Share.shareFiles([_image!.path]);
+                                  }
+                                },
+                                child: Text('Share Image'),
+                              )
+
                               // InkWell(
                               //   onTap: () {},
                               //   child: Card(

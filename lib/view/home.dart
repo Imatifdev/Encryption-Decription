@@ -8,6 +8,8 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:share_text/share_text.dart';
+import 'package:share_plus/share_plus.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -379,20 +381,29 @@ class _HomeState extends State<Home> {
                           ),
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: TextFormField(
-                          style: TextStyle(color: Colors.white),
-                          controller: _decryptedTextController,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white.withOpacity(0.2),
-                            labelText: 'Decrypted Text',
-                            labelStyle: TextStyle(color: Colors.white),
-                          ),
-                          enabled: false,
-                        ),
-                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_encryptedText.isNotEmpty) {
+                            Share.share(_encryptedText);
+                          }
+                        },
+                        child: Text('Share Encrypted Text'),
+                      )
+
+                      // Padding(
+                      //   padding: const EdgeInsets.all(16.0),
+                      //   child: TextFormField(
+                      //     style: TextStyle(color: Colors.white),
+                      //     controller: _decryptedTextController,
+                      //     decoration: InputDecoration(
+                      //       filled: true,
+                      //       fillColor: Colors.white.withOpacity(0.2),
+                      //       labelText: 'Decrypted Text',
+                      //       labelStyle: TextStyle(color: Colors.white),
+                      //     ),
+                      //     enabled: false,
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
